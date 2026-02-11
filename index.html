@@ -139,6 +139,14 @@
             animation: pulseOnline 2s infinite;
         }
 
+        .offline-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #888;
+            box-shadow: 0 0 5px #666;
+        }
+
         @keyframes pulseOnline {
             0% { opacity: 0.8; transform: scale(1); }
             100% { opacity: 1; transform: scale(1.2); }
@@ -233,6 +241,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .chat-item:active {
+            background: rgba(100, 0, 150, 0.8);
+            transform: scale(0.98);
         }
 
         /* Сообщения */
@@ -245,26 +260,75 @@
             gap: 12px;
         }
 
-        .message {
+        .message-wrapper {
             max-width: 80%;
+            align-self: flex-start;
+            position: relative;
+        }
+
+        .my-message-wrapper {
+            align-self: flex-end;
+        }
+
+        .message {
             padding: 12px 16px;
             border-radius: 24px;
             position: relative;
             word-break: break-word;
+            transition: 0.2s;
         }
 
         .my-message {
-            align-self: flex-end;
             background: linear-gradient(145deg, #7a1fa0, #4a0072);
             border-bottom-right-radius: 4px;
             box-shadow: 0 0 20px #b300ff70;
+            color: white;
         }
 
         .other-message {
-            align-self: flex-start;
             background: rgba(40, 0, 60, 0.8);
             border: 1px solid #cc66ff;
             border-bottom-left-radius: 4px;
+            color: white;
+        }
+
+        .message.selected {
+            border: 2px solid #ff44ff;
+            box-shadow: 0 0 25px #ff00ff;
+        }
+
+        .message-actions {
+            position: absolute;
+            top: -25px;
+            right: 0;
+            background: rgba(20, 0, 30, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 8px 16px;
+            display: flex;
+            gap: 15px;
+            border: 1px solid #ff44ff;
+            box-shadow: 0 0 20px #b300ff;
+            z-index: 100;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 14px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .action-btn.delete {
+            color: #ff8888;
+        }
+
+        .action-btn.delete:active {
+            background: rgba(255, 0, 0, 0.3);
         }
 
         .typing-indicator {
@@ -316,6 +380,7 @@
             font-size: 12px;
             gap: 4px;
             transition: 0.2s;
+            cursor: pointer;
         }
 
         .nav-item.active {
@@ -347,6 +412,60 @@
         .hidden {
             display: none !important;
         }
+
+        /* Контекстное меню на мобильных */
+        .context-menu {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(30, 0, 40, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 2px solid #b300ff;
+            border-radius: 30px 30px 0 0;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 1000;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .context-menu-item {
+            padding: 18px;
+            background: rgba(100, 0, 150, 0.3);
+            border-radius: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            border: 1px solid #d400ff;
+            cursor: pointer;
+        }
+
+        .context-menu-item.delete {
+            color: #ff9999;
+            border-color: #ff4444;
+        }
+
+        .context-menu-item:active {
+            background: rgba(150, 0, 200, 0.5);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+        }
     </style>
 </head>
 <body>
@@ -373,8 +492,8 @@
             <div class="neon-header">
                 <span class="neon-title">ЧАТЫ</span>
                 <div id="current-user-badge" class="user-badge">
-                    <span class="online-indicator"></span>
-                    <span id="current-username">... </span>
+                    <span id="online-indicator-header" class="online-indicator"></span>
+                    <span id="current-username">...</span>
                 </div>
             </div>
             
@@ -391,7 +510,7 @@
                 <!-- Окно переписки (скрыто пока не выбран чат) -->
                 <div id="chat-window" class="hidden" style="height: 100%; display: flex; flex-direction: column;">
                     <div style="display: flex; align-items: center; gap: 15px; padding-bottom: 15px; border-bottom: 1px solid #b300ff;">
-                        <button id="back-to-chats" style="background: none; border: none; font-size: 28px; color: #fff;">←</button>
+                        <button id="back-to-chats" style="background: none; border: none; font-size: 28px; color: #fff; cursor: pointer;">←</button>
                         <div>
                             <div style="font-weight: bold; font-size: 18px;" id="chat-partner-name">ID: </div>
                             <div class="last-seen" id="chat-partner-status">последний раз: ...</div>
@@ -462,6 +581,13 @@
         </div>
     </div>
 
+    <!-- Контекстное меню для удаления сообщений -->
+    <div id="context-menu-overlay" class="overlay hidden"></div>
+    <div id="context-menu" class="context-menu hidden">
+        <div class="context-menu-item delete" id="delete-message-btn">🗑️ Удалить сообщение</div>
+        <div class="context-menu-item" id="cancel-context-menu">❌ Отмена</div>
+    </div>
+
     <script>
         // 🔥 FIREBASE КОНФИГУРАЦИЯ
         const firebaseConfig = {
@@ -480,7 +606,11 @@
         // ================== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==================
         let currentUser = null;           // { id, name, uid }
         let currentChatPartner = null;    // ID собеседника
-        let allAccounts = [];            // массив аккаунтов для быстрого переключения
+        let allAccounts = [];            // массив аккаунтов
+        let selectedMessageId = null;    // для удаления сообщений
+        let currentChatId = null;        // текущий чат
+        let typingTimeout = null;        // таймаут для индикатора печати
+        let presenceRef = null;          // для отслеживания присутствия
 
         // Элементы DOM
         const authScreen = document.getElementById('auth-screen');
@@ -503,6 +633,13 @@
         const chatPartnerName = document.getElementById('chat-partner-name');
         const chatPartnerStatus = document.getElementById('chat-partner-status');
         const typingNotification = document.getElementById('typing-notification');
+        const onlineIndicatorHeader = document.getElementById('online-indicator-header');
+
+        // Контекстное меню
+        const contextMenu = document.getElementById('context-menu');
+        const contextMenuOverlay = document.getElementById('context-menu-overlay');
+        const deleteMessageBtn = document.getElementById('delete-message-btn');
+        const cancelContextMenu = document.getElementById('cancel-context-menu');
 
         // Навигация
         document.getElementById('nav-settings').addEventListener('click', () => showSettingsScreen());
@@ -514,12 +651,16 @@
         backToChats.addEventListener('click', () => {
             chatWindow.classList.add('hidden');
             chatsListContainer.classList.remove('hidden');
+            if (currentChatPartner) {
+                database.ref(`users/${currentChatPartner}`).off();
+                currentChatPartner = null;
+            }
         });
 
         // ================== ФУНКЦИИ ВРЕМЕНИ МСК ==================
         function getMoscowTime() {
             const now = new Date();
-            const mskOffset = 3 * 60; // +3 UTC
+            const mskOffset = 3 * 60;
             const localOffset = now.getTimezoneOffset();
             const mskTime = new Date(now.getTime() + (mskOffset + localOffset) * 60000);
             return mskTime;
@@ -530,14 +671,33 @@
             const last = new Date(timestamp);
             const now = getMoscowTime();
             const diffMs = now - last;
-            const diffMin = Math.floor(diffMs / 60000);
-            if (diffMin < 1) return 'только что';
-            if (diffMin < 60) return `${diffMin} мин назад`;
-            if (diffMin < 1440) return `${Math.floor(diffMin / 60)} ч назад`;
-            return last.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+            const diffSec = Math.floor(diffMs / 1000);
+            const diffMin = Math.floor(diffSec / 60);
+            const diffHours = Math.floor(diffMin / 60);
+            const diffDays = Math.floor(diffHours / 24);
+            
+            if (diffSec < 5) return 'только что';
+            if (diffSec < 60) return `${diffSec} сек назад`;
+            if (diffMin < 60) {
+                const minutes = diffMin;
+                const seconds = diffSec % 60;
+                return `${minutes} мин ${seconds} сек назад`;
+            }
+            if (diffHours < 24) {
+                return `${diffHours} ч ${diffMin % 60} мин назад`;
+            }
+            if (diffDays < 7) {
+                return `${diffDays} дн назад`;
+            }
+            return last.toLocaleDateString('ru-RU', { 
+                day: 'numeric', 
+                month: 'short', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
         }
 
-        // ================== ГЕНЕРАЦИЯ УНИКАЛЬНОГО ID (5 СИМВОЛОВ) ==================
+        // ================== ГЕНЕРАЦИЯ УНИКАЛЬНОГО ID ==================
         function generateUniqueId() {
             const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
             let id = '';
@@ -556,17 +716,14 @@
             let userId;
 
             if (snapshot.exists()) {
-                // Пользователь существует
                 const entries = Object.entries(snapshot.val());
                 userId = entries[0][0];
                 userData = entries[0][1];
             } else {
-                // Создаем нового
                 userId = generateUniqueId();
-                // Проверка на уникальность ID (на всякий случай)
                 const idCheck = await usersRef.child(userId).once('value');
                 if (idCheck.exists()) {
-                    userId = generateUniqueId(); // повтор
+                    userId = generateUniqueId();
                 }
                 userData = {
                     name: username,
@@ -579,7 +736,6 @@
 
             currentUser = { ...userData, uid: userId };
             
-            // Сохраняем в localStorage
             let accounts = JSON.parse(localStorage.getItem('criminal_accounts') || '[]');
             if (!accounts.find(acc => acc.uid === userId)) {
                 accounts.push({ uid: userId, name: username });
@@ -587,21 +743,39 @@
             }
             localStorage.setItem('current_account', JSON.stringify({ uid: userId, name: username }));
 
-            await setUserOnlineStatus(userId, true);
+            await setupPresence(userId);
             loadAllAccounts();
             updateUIForUser();
             showMainScreen();
         }
 
-        async function setUserOnlineStatus(uid, status) {
+        // ================== НАСТРОЙКА ПРИСУТСТВИЯ ==================
+        async function setupPresence(uid) {
             if (!uid) return;
-            await database.ref(`users/${uid}`).update({
-                online: status,
-                lastSeen: firebase.database.ServerValue.TIMESTAMP
+            
+            const userStatusRef = database.ref(`users/${uid}`);
+            const connectedRef = database.ref('.info/connected');
+            
+            if (presenceRef) {
+                presenceRef.off();
+            }
+            
+            presenceRef = connectedRef.on('value', async (snap) => {
+                if (snap.val() === true) {
+                    await userStatusRef.update({
+                        online: true,
+                        lastSeen: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    
+                    userStatusRef.onDisconnect().update({
+                        online: false,
+                        lastSeen: firebase.database.ServerValue.TIMESTAMP
+                    });
+                }
             });
         }
 
-        // ================== ЗАГРУЗКА ВСЕХ АККАУНТОВ ==================
+        // ================== ЗАГРУЗКА АККАУНТОВ ==================
         function loadAllAccounts() {
             const stored = localStorage.getItem('criminal_accounts');
             allAccounts = stored ? JSON.parse(stored) : [];
@@ -629,7 +803,7 @@
                 const userData = snap.val();
                 currentUser = { ...userData, uid };
                 localStorage.setItem('current_account', JSON.stringify({ uid, name: userData.name }));
-                await setUserOnlineStatus(uid, true);
+                await setupPresence(uid);
                 updateUIForUser();
                 showMainScreen();
             }
@@ -650,36 +824,59 @@
             const userId = currentUser.uid;
             const chatsRef = database.ref('chats');
 
-            chatsRef.orderByChild(`participants/${userId}`).equalTo(true).on('value', (snapshot) => {
+            chatsRef.orderByChild(`participants/${userId}`).equalTo(true).on('value', async (snapshot) => {
                 if (!snapshot.exists()) {
                     chatsListEl.innerHTML = '<div style="color: #bb99ff; text-align: center;">Нет чатов. Начните переписку по ID!</div>';
                     return;
                 }
-                let chatsHtml = '';
+                
                 const chats = snapshot.val();
+                const chatPromises = [];
+                
                 for (const chatId in chats) {
                     const chat = chats[chatId];
                     const participants = Object.keys(chat.participants || {});
                     const partnerId = participants.find(p => p !== userId);
+                    
                     if (partnerId) {
-                        // Получаем имя партнера
-                        database.ref(`users/${partnerId}`).once('value').then(partnerSnap => {
-                            if (partnerSnap.exists()) {
-                                const pData = partnerSnap.val();
-                                // Обновляем отображение
-                                const chatItem = document.querySelector(`.chat-item[data-chatid="${chatId}"] .chat-name`);
-                                if (chatItem) chatItem.textContent = `${pData.name} (${partnerId})`;
-                            }
-                        });
-                        chatsHtml += `<div class="chat-item" onclick="openChat('${partnerId}')" data-chatid="${chatId}">
-                                        <div>
-                                            <div style="font-weight: bold; margin-bottom: 5px;" class="chat-name">ID: ${partnerId}</div>
-                                            <div style="font-size: 13px; color: #dec5ff;">👤 ${partnerId}</div>
-                                        </div>
-                                        <div style="font-size: 24px;">💬</div>
-                                    </div>`;
+                        chatPromises.push(
+                            database.ref(`users/${partnerId}`).once('value').then(partnerSnap => {
+                                if (partnerSnap.exists()) {
+                                    const pData = partnerSnap.val();
+                                    const lastMessage = chat.lastMessage || '';
+                                    const lastTime = chat.lastTime ? formatLastSeen(chat.lastTime) : '';
+                                    
+                                    return {
+                                        chatId,
+                                        partnerId,
+                                        partnerName: pData.name,
+                                        lastMessage,
+                                        lastTime
+                                    };
+                                }
+                            })
+                        );
                     }
                 }
+                
+                const chatData = await Promise.all(chatPromises);
+                let chatsHtml = '';
+                chatData.sort((a, b) => (b.lastTime || 0) - (a.lastTime || 0));
+                
+                chatData.forEach(chat => {
+                    chatsHtml += `<div class="chat-item" onclick="openChat('${chat.partnerId}')" data-chatid="${chat.chatId}">
+                                    <div>
+                                        <div style="font-weight: bold; margin-bottom: 5px;">${chat.partnerName}</div>
+                                        <div style="font-size: 13px; color: #dec5ff;">ID: ${chat.partnerId}</div>
+                                        <div style="font-size: 12px; color: #aa88cc;">${chat.lastMessage.substring(0, 20)}${chat.lastMessage.length > 20 ? '...' : ''}</div>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                                        <div style="font-size: 24px;">💬</div>
+                                        <div style="font-size: 11px; color: #bb99ff;">${chat.lastTime}</div>
+                                    </div>
+                                </div>`;
+                });
+                
                 chatsListEl.innerHTML = chatsHtml || '<div style="color: #bb99ff;">Чатов пока нет</div>';
             });
         }
@@ -687,32 +884,34 @@
         // ================== ОТКРЫТЬ ЧАТ ==================
         window.openChat = async function(partnerId) {
             currentChatPartner = partnerId;
+            currentChatId = generateChatId(currentUser.uid, partnerId);
+            
             chatWindow.classList.remove('hidden');
             chatsListContainer.classList.add('hidden');
 
-            // Загружаем информацию о собеседнике
             const userSnap = await database.ref(`users/${partnerId}`).once('value');
             if (userSnap.exists()) {
                 const pData = userSnap.val();
                 chatPartnerName.textContent = `${pData.name} (${partnerId})`;
             }
 
-            // Слушаем статус
+            // Слушаем статус с точным временем
+            database.ref(`users/${partnerId}`).off();
             database.ref(`users/${partnerId}`).on('value', (snap) => {
                 const user = snap.val();
                 if (user) {
-                    if (user.online) {
-                        chatPartnerStatus.innerHTML = '🟢 в сети';
+                    if (user.online === true) {
+                        chatPartnerStatus.innerHTML = '<span style="color: #00ff88;">●</span> в сети';
                     } else {
-                        chatPartnerStatus.textContent = `был(а) ${formatLastSeen(user.lastSeen)}`;
+                        const lastSeenText = formatLastSeen(user.lastSeen);
+                        chatPartnerStatus.textContent = `был(а) ${lastSeenText}`;
                     }
                 }
             });
 
             // Слушаем сообщения
-            const chatId = generateChatId(currentUser.uid, partnerId);
-            const messagesRef = database.ref(`messages/${chatId}`);
-            messagesRef.off(); // очистка
+            const messagesRef = database.ref(`messages/${currentChatId}`);
+            messagesRef.off();
             messagesRef.orderByChild('timestamp').on('value', (snap) => {
                 if (snap.exists()) {
                     renderMessages(snap.val());
@@ -722,43 +921,128 @@
             });
 
             // Слушаем "печатает..."
-            database.ref(`typing/${chatId}/${partnerId}`).on('value', (snap) => {
+            database.ref(`typing/${currentChatId}/${partnerId}`).off();
+            database.ref(`typing/${currentChatId}/${partnerId}`).on('value', (snap) => {
                 if (snap.val() === true) {
                     typingNotification.classList.remove('hidden');
                 } else {
                     typingNotification.classList.add('hidden');
                 }
             });
+            
+            // Отмечаем сообщения как прочитанные
+            markMessagesAsRead(currentChatId, partnerId);
         };
 
         function generateChatId(uid1, uid2) {
             return [uid1, uid2].sort().join('_');
         }
 
+        // ================== ОТМЕТКА ПРОЧИТАННЫХ ==================
+        async function markMessagesAsRead(chatId, partnerId) {
+            if (!currentUser) return;
+            const messagesRef = database.ref(`messages/${chatId}`);
+            const snapshot = await messagesRef.orderByChild('read').equalTo(false).once('value');
+            
+            if (snapshot.exists()) {
+                const updates = {};
+                snapshot.forEach(child => {
+                    const message = child.val();
+                    if (message.sender === partnerId) {
+                        updates[`${child.key}/read`] = true;
+                    }
+                });
+                
+                if (Object.keys(updates).length > 0) {
+                    await messagesRef.update(updates);
+                }
+            }
+        }
+
+        // ================== ОТОБРАЖЕНИЕ СООБЩЕНИЙ ==================
         function renderMessages(messagesObj) {
             if (!messagesObj) return;
             let html = '';
-            const sorted = Object.values(messagesObj).sort((a,b) => a.timestamp - b.timestamp);
-            sorted.forEach(msg => {
+            const sorted = Object.entries(messagesObj)
+                .sort((a,b) => a[1].timestamp - b[1].timestamp);
+            
+            sorted.forEach(([messageId, msg]) => {
                 const isMy = msg.sender === currentUser.uid;
-                const time = new Date(msg.timestamp).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-                html += `<div class="message ${isMy ? 'my-message' : 'other-message'}">
-                            ${msg.text}
-                            <div class="message-time">${time}</div>
+                const time = new Date(msg.timestamp).toLocaleTimeString('ru-RU', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                
+                html += `<div class="message-wrapper ${isMy ? 'my-message-wrapper' : ''}" 
+                              data-message-id="${messageId}" 
+                              data-sender="${msg.sender}"
+                              oncontextmenu="showMessageMenu('${messageId}', event)"
+                              ontouchstart="touchStart('${messageId}', event)">
+                            <div class="message ${isMy ? 'my-message' : 'other-message'}">
+                                ${msg.text}
+                                <div class="message-time">
+                                    ${time}
+                                    ${isMy ? (msg.read ? ' ✓✓' : ' ✓') : ''}
+                                </div>
+                            </div>
                         </div>`;
             });
             messagesListEl.innerHTML = html || '<div style="color: #aaa; text-align: center;">Нет сообщений</div>';
+            messagesListEl.scrollTop = messagesListEl.scrollHeight;
+        }
+
+        // ================== УДАЛЕНИЕ СООБЩЕНИЯ ==================
+        window.showMessageMenu = function(messageId, event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            selectedMessageId = messageId;
+            contextMenu.classList.remove('hidden');
+            contextMenuOverlay.classList.remove('hidden');
+        };
+
+        // Для мобильных устройств - долгое нажатие
+        let touchTimer;
+        window.touchStart = function(messageId, event) {
+            touchTimer = setTimeout(() => {
+                showMessageMenu(messageId, event);
+            }, 500);
+        };
+
+        window.touchEnd = function() {
+            clearTimeout(touchTimer);
+        };
+
+        async function deleteSelectedMessage() {
+            if (!selectedMessageId || !currentChatId) return;
+            
+            try {
+                await database.ref(`messages/${currentChatId}/${selectedMessageId}`).remove();
+                closeContextMenu();
+            } catch (error) {
+                console.error('Ошибка удаления:', error);
+                alert('Не удалось удалить сообщение');
+            }
+        }
+
+        function closeContextMenu() {
+            contextMenu.classList.add('hidden');
+            contextMenuOverlay.classList.add('hidden');
+            selectedMessageId = null;
         }
 
         // ================== ОТПРАВКА СООБЩЕНИЯ ==================
         sendMsgBtn.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
-            // Индикатор печатает
+        
+        messageInput.addEventListener('input', () => {
             if (currentChatPartner && currentUser) {
                 const chatId = generateChatId(currentUser.uid, currentChatPartner);
                 database.ref(`typing/${chatId}/${currentUser.uid}`).set(true);
-                setTimeout(() => {
+                
+                if (typingTimeout) clearTimeout(typingTimeout);
+                typingTimeout = setTimeout(() => {
                     database.ref(`typing/${chatId}/${currentUser.uid}`).remove();
                 }, 2000);
             }
@@ -770,19 +1054,28 @@
 
             const chatId = generateChatId(currentUser.uid, currentChatPartner);
             const messageRef = database.ref(`messages/${chatId}`).push();
+            
             await messageRef.set({
                 text: text,
                 sender: currentUser.uid,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                read: false
             });
 
-            // Обновляем чат в /chats
-            const chatParticipants = {};
-            chatParticipants[currentUser.uid] = true;
-            chatParticipants[currentChatPartner] = true;
-            await database.ref(`chats/${chatId}/participants`).set(chatParticipants);
+            // Обновляем информацию о последнем сообщении в чате
+            await database.ref(`chats/${chatId}`).update({
+                participants: {
+                    [currentUser.uid]: true,
+                    [currentChatPartner]: true
+                },
+                lastMessage: text,
+                lastTime: firebase.database.ServerValue.TIMESTAMP
+            });
 
             messageInput.value = '';
+            
+            // Убираем индикатор печати
+            database.ref(`typing/${chatId}/${currentUser.uid}`).remove();
         }
 
         // ================== НАЧАТЬ ЧАТ ПО ID ==================
@@ -790,6 +1083,7 @@
             const targetId = searchUserId.value.trim().toUpperCase();
             if (!targetId) return alert('Введите ID');
             if (targetId === currentUser.id) return alert('Это ваш собственный ID');
+            
             const userSnap = await database.ref(`users/${targetId}`).once('value');
             if (userSnap.exists()) {
                 openChat(targetId);
@@ -802,7 +1096,13 @@
         // ================== ВЫХОД ==================
         async function logout() {
             if (currentUser) {
-                await setUserOnlineStatus(currentUser.uid, false);
+                await database.ref(`users/${currentUser.uid}`).update({
+                    online: false,
+                    lastSeen: firebase.database.ServerValue.TIMESTAMP
+                });
+                if (presenceRef) {
+                    database.ref('.info/connected').off('value', presenceRef);
+                }
                 currentUser = null;
             }
             authScreen.classList.add('active-screen');
@@ -836,7 +1136,6 @@
 
         // ================== ИНИЦИАЛИЗАЦИЯ ==================
         window.onload = async () => {
-            // Проверяем текущую сессию
             const savedAccount = localStorage.getItem('current_account');
             if (savedAccount) {
                 const acc = JSON.parse(savedAccount);
@@ -844,7 +1143,7 @@
                 if (userSnap.exists()) {
                     const userData = userSnap.val();
                     currentUser = { ...userData, uid: acc.uid };
-                    await setUserOnlineStatus(acc.uid, true);
+                    await setupPresence(acc.uid);
                     updateUIForUser();
                     showMainScreen();
                 } else {
@@ -853,13 +1152,25 @@
             }
 
             loginBtn.addEventListener('click', () => loginUser(loginUsername.value));
+            loginUsername.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') loginUser(loginUsername.value);
+            });
+
+            // Контекстное меню
+            deleteMessageBtn.addEventListener('click', deleteSelectedMessage);
+            cancelContextMenu.addEventListener('click', closeContextMenu);
+            contextMenuOverlay.addEventListener('click', closeContextMenu);
+
             loadAllAccounts();
         };
 
-        // При закрытии страницы — офлайн
-        window.addEventListener('beforeunload', function() {
+        // При закрытии страницы
+        window.addEventListener('beforeunload', async function() {
             if (currentUser) {
-                setUserOnlineStatus(currentUser.uid, false);
+                await database.ref(`users/${currentUser.uid}`).update({
+                    online: false,
+                    lastSeen: firebase.database.ServerValue.TIMESTAMP
+                });
             }
         });
     </script>
