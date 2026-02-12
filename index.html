@@ -30,7 +30,6 @@
             overflow-x: hidden;
         }
 
-        /* Анимированные частицы фиолетового свечения */
         body::before {
             content: '';
             position: fixed;
@@ -65,7 +64,6 @@
             position: relative;
         }
 
-        /* Эффект свечения границ */
         #app::after {
             content: '';
             position: absolute;
@@ -89,7 +87,6 @@
             display: flex;
         }
 
-        /* Шапка с неоновым заголовком */
         .neon-header {
             padding: 16px 20px;
             background: rgba(20, 0, 30, 0.7);
@@ -139,14 +136,6 @@
             animation: pulseOnline 2s infinite;
         }
 
-        .offline-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #888;
-            box-shadow: 0 0 5px #666;
-        }
-
         @keyframes pulseOnline {
             0% { opacity: 0.8; transform: scale(1); }
             100% { opacity: 1; transform: scale(1.2); }
@@ -161,7 +150,6 @@
             gap: 20px;
         }
 
-        /* Карточки и элементы ввода */
         .glass-card {
             background: rgba(50, 0, 70, 0.5);
             backdrop-filter: blur(12px);
@@ -225,7 +213,6 @@
             margin: 10px 0;
         }
 
-        /* Список чатов */
         .chat-list {
             display: flex;
             flex-direction: column;
@@ -250,20 +237,59 @@
             transform: scale(0.98);
         }
 
-        /* Сообщения */
         .messages-container {
             flex: 1;
             overflow-y: auto;
             padding: 15px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
+        }
+
+        /* Разделитель дат */
+        .date-separator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .date-separator::before {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #c061ff, transparent);
+            margin-right: 15px;
+        }
+
+        .date-separator::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #c061ff, transparent);
+            margin-left: 15px;
+        }
+
+        .date-text {
+            background: rgba(100, 0, 150, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #ffffff;
+            border: 1px solid #e580ff;
+            box-shadow: 0 0 15px #b300ff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .message-wrapper {
             max-width: 80%;
             align-self: flex-start;
             position: relative;
+            margin-bottom: 4px;
         }
 
         .my-message-wrapper {
@@ -292,68 +318,15 @@
             color: white;
         }
 
-        .message.selected {
-            border: 2px solid #ff44ff;
-            box-shadow: 0 0 25px #ff00ff;
-        }
-
-        .message-actions {
-            position: absolute;
-            top: -25px;
-            right: 0;
-            background: rgba(20, 0, 30, 0.9);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 8px 16px;
-            display: flex;
-            gap: 15px;
-            border: 1px solid #ff44ff;
-            box-shadow: 0 0 20px #b300ff;
-            z-index: 100;
-        }
-
-        .action-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 14px;
-            padding: 5px 10px;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .action-btn.delete {
-            color: #ff8888;
-        }
-
-        .action-btn.delete:active {
-            background: rgba(255, 0, 0, 0.3);
-        }
-
-        .typing-indicator {
-            color: #d4a0ff;
-            font-style: italic;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 8px 15px;
-            background: rgba(100, 0, 150, 0.3);
-            border-radius: 30px;
-            align-self: flex-start;
-            animation: typingPulse 1.5s infinite;
-        }
-
-        @keyframes typingPulse {
-            0% { opacity: 0.7; }
-            100% { opacity: 1; text-shadow: 0 0 8px #ffaaff; }
-        }
-
         .message-time {
             font-size: 11px;
             color: #ccccff;
             margin-top: 5px;
             text-align: right;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
         }
 
         .last-seen {
@@ -361,7 +334,6 @@
             color: #bb99ff;
         }
 
-        /* Нижнее меню */
         .bottom-nav {
             display: flex;
             justify-content: space-around;
@@ -392,7 +364,6 @@
             font-size: 22px;
         }
 
-        /* Аккаунты */
         .accounts-grid {
             display: flex;
             flex-direction: column;
@@ -413,7 +384,6 @@
             display: none !important;
         }
 
-        /* Контекстное меню на мобильных */
         .context-menu {
             position: fixed;
             bottom: 0;
@@ -466,6 +436,28 @@
             background: rgba(0, 0, 0, 0.7);
             z-index: 999;
         }
+
+        .read-status {
+            font-size: 12px;
+            color: #aaffaa;
+            margin-left: 4px;
+        }
+
+        /* Адаптация для мобильных */
+        @media (max-width: 480px) {
+            .neon-title {
+                font-size: 20px;
+            }
+            
+            .message-wrapper {
+                max-width: 85%;
+            }
+            
+            .date-text {
+                font-size: 12px;
+                padding: 6px 14px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -507,7 +499,7 @@
                     <div id="chats-list" class="chat-list"></div>
                 </div>
 
-                <!-- Окно переписки (скрыто пока не выбран чат) -->
+                <!-- Окно переписки -->
                 <div id="chat-window" class="hidden" style="height: 100%; display: flex; flex-direction: column;">
                     <div style="display: flex; align-items: center; gap: 15px; padding-bottom: 15px; border-bottom: 1px solid #b300ff;">
                         <button id="back-to-chats" style="background: none; border: none; font-size: 28px; color: #fff; cursor: pointer;">←</button>
@@ -517,12 +509,11 @@
                         </div>
                     </div>
                     
-                    <div id="messages-list" class="messages-container" style="flex: 1; overflow-y: auto;">
-                        <!-- Сообщения подгружаются сюда -->
+                    <div id="messages-list" class="messages-container">
+                        <!-- Сообщения с датами подгружаются сюда -->
                     </div>
 
-                    <!-- Печатает индикатор -->
-                    <div id="typing-notification" class="typing-indicator hidden" style="margin-left: 15px; margin-bottom: 5px;">
+                    <div id="typing-notification" class="typing-indicator hidden" style="margin-left: 15px; margin-bottom: 5px; color: #d4a0ff; font-style: italic; display: flex; align-items: center; gap: 5px; padding: 8px 15px; background: rgba(100, 0, 150, 0.3); border-radius: 30px; align-self: flex-start;">
                         <span>✍️ Печатает...</span>
                     </div>
 
@@ -604,13 +595,13 @@
         const database = firebase.database();
 
         // ================== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==================
-        let currentUser = null;           // { id, name, uid }
-        let currentChatPartner = null;    // ID собеседника
-        let allAccounts = [];            // массив аккаунтов
-        let selectedMessageId = null;    // для удаления сообщений
-        let currentChatId = null;        // текущий чат
-        let typingTimeout = null;        // таймаут для индикатора печати
-        let presenceRef = null;          // для отслеживания присутствия
+        let currentUser = null;
+        let currentChatPartner = null;
+        let allAccounts = [];
+        let selectedMessageId = null;
+        let currentChatId = null;
+        let typingTimeout = null;
+        let presenceRef = null;
 
         // Элементы DOM
         const authScreen = document.getElementById('auth-screen');
@@ -633,7 +624,6 @@
         const chatPartnerName = document.getElementById('chat-partner-name');
         const chatPartnerStatus = document.getElementById('chat-partner-status');
         const typingNotification = document.getElementById('typing-notification');
-        const onlineIndicatorHeader = document.getElementById('online-indicator-header');
 
         // Контекстное меню
         const contextMenu = document.getElementById('context-menu');
@@ -655,15 +645,49 @@
                 database.ref(`users/${currentChatPartner}`).off();
                 currentChatPartner = null;
             }
+            if (currentChatId) {
+                database.ref(`messages/${currentChatId}`).off();
+                database.ref(`typing/${currentChatId}`).off();
+                currentChatId = null;
+            }
         });
 
-        // ================== ФУНКЦИИ ВРЕМЕНИ МСК ==================
+        // ================== ФУНКЦИИ ФОРМАТИРОВАНИЯ ДАТЫ ==================
         function getMoscowTime() {
             const now = new Date();
             const mskOffset = 3 * 60;
             const localOffset = now.getTimezoneOffset();
-            const mskTime = new Date(now.getTime() + (mskOffset + localOffset) * 60000);
-            return mskTime;
+            return new Date(now.getTime() + (mskOffset + localOffset) * 60000);
+        }
+
+        function formatDateForSeparator(timestamp) {
+            const date = new Date(timestamp);
+            const now = getMoscowTime();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+            if (messageDate.getTime() === today.getTime()) {
+                return 'СЕГОДНЯ';
+            } else if (messageDate.getTime() === yesterday.getTime()) {
+                return 'ВЧЕРА';
+            } else {
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}.${month}.${year}`;
+            }
+        }
+
+        function formatFullDate(timestamp) {
+            const date = new Date(timestamp);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return `${day}.${month}.${year} ${hours}:${minutes}`;
         }
 
         function formatLastSeen(timestamp) {
@@ -678,26 +702,20 @@
             
             if (diffSec < 5) return 'только что';
             if (diffSec < 60) return `${diffSec} сек назад`;
-            if (diffMin < 60) {
-                const minutes = diffMin;
-                const seconds = diffSec % 60;
-                return `${minutes} мин ${seconds} сек назад`;
-            }
-            if (diffHours < 24) {
-                return `${diffHours} ч ${diffMin % 60} мин назад`;
-            }
-            if (diffDays < 7) {
-                return `${diffDays} дн назад`;
-            }
-            return last.toLocaleDateString('ru-RU', { 
-                day: 'numeric', 
-                month: 'short', 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            });
+            if (diffMin < 60) return `${diffMin} мин ${diffSec % 60} сек назад`;
+            if (diffHours < 24) return `${diffHours} ч ${diffMin % 60} мин назад`;
+            if (diffDays === 1) return 'вчера';
+            if (diffDays < 7) return `${diffDays} дн назад`;
+            
+            const day = last.getDate().toString().padStart(2, '0');
+            const month = (last.getMonth() + 1).toString().padStart(2, '0');
+            const year = last.getFullYear();
+            const hours = last.getHours().toString().padStart(2, '0');
+            const minutes = last.getMinutes().toString().padStart(2, '0');
+            return `${day}.${month}.${year} ${hours}:${minutes}`;
         }
 
-        // ================== ГЕНЕРАЦИЯ УНИКАЛЬНОГО ID ==================
+        // ================== ГЕНЕРАЦИЯ ID ==================
         function generateUniqueId() {
             const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
             let id = '';
@@ -749,7 +767,6 @@
             showMainScreen();
         }
 
-        // ================== НАСТРОЙКА ПРИСУТСТВИЯ ==================
         async function setupPresence(uid) {
             if (!uid) return;
             
@@ -757,10 +774,10 @@
             const connectedRef = database.ref('.info/connected');
             
             if (presenceRef) {
-                presenceRef.off();
+                connectedRef.off('value', presenceRef);
             }
             
-            presenceRef = connectedRef.on('value', async (snap) => {
+            presenceRef = await connectedRef.on('value', async (snap) => {
                 if (snap.val() === true) {
                     await userStatusRef.update({
                         online: true,
@@ -775,7 +792,6 @@
             });
         }
 
-        // ================== ЗАГРУЗКА АККАУНТОВ ==================
         function loadAllAccounts() {
             const stored = localStorage.getItem('criminal_accounts');
             allAccounts = stored ? JSON.parse(stored) : [];
@@ -809,7 +825,6 @@
             }
         };
 
-        // ================== ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ==================
         function updateUIForUser() {
             if (currentUser) {
                 currentUsernameSpan.textContent = currentUser.name;
@@ -851,7 +866,8 @@
                                         partnerId,
                                         partnerName: pData.name,
                                         lastMessage,
-                                        lastTime
+                                        lastTime,
+                                        lastTimestamp: chat.lastTime || 0
                                     };
                                 }
                             })
@@ -859,20 +875,22 @@
                     }
                 }
                 
-                const chatData = await Promise.all(chatPromises);
-                let chatsHtml = '';
-                chatData.sort((a, b) => (b.lastTime || 0) - (a.lastTime || 0));
+                const chatData = (await Promise.all(chatPromises)).filter(Boolean);
+                chatData.sort((a, b) => (b.lastTimestamp || 0) - (a.lastTimestamp || 0));
                 
+                let chatsHtml = '';
                 chatData.forEach(chat => {
                     chatsHtml += `<div class="chat-item" onclick="openChat('${chat.partnerId}')" data-chatid="${chat.chatId}">
                                     <div>
                                         <div style="font-weight: bold; margin-bottom: 5px;">${chat.partnerName}</div>
                                         <div style="font-size: 13px; color: #dec5ff;">ID: ${chat.partnerId}</div>
-                                        <div style="font-size: 12px; color: #aa88cc;">${chat.lastMessage.substring(0, 20)}${chat.lastMessage.length > 20 ? '...' : ''}</div>
+                                        <div style="font-size: 12px; color: #aa88cc;">
+                                            ${chat.lastMessage ? chat.lastMessage.substring(0, 25) + (chat.lastMessage.length > 25 ? '...' : '') : 'Нет сообщений'}
+                                        </div>
                                     </div>
                                     <div style="display: flex; flex-direction: column; align-items: flex-end;">
                                         <div style="font-size: 24px;">💬</div>
-                                        <div style="font-size: 11px; color: #bb99ff;">${chat.lastTime}</div>
+                                        <div style="font-size: 11px; color: #bb99ff; margin-top: 5px;">${chat.lastTime}</div>
                                     </div>
                                 </div>`;
                 });
@@ -895,7 +913,6 @@
                 chatPartnerName.textContent = `${pData.name} (${partnerId})`;
             }
 
-            // Слушаем статус с точным временем
             database.ref(`users/${partnerId}`).off();
             database.ref(`users/${partnerId}`).on('value', (snap) => {
                 const user = snap.val();
@@ -903,24 +920,21 @@
                     if (user.online === true) {
                         chatPartnerStatus.innerHTML = '<span style="color: #00ff88;">●</span> в сети';
                     } else {
-                        const lastSeenText = formatLastSeen(user.lastSeen);
-                        chatPartnerStatus.textContent = `был(а) ${lastSeenText}`;
+                        chatPartnerStatus.textContent = `был(а) ${formatLastSeen(user.lastSeen)}`;
                     }
                 }
             });
 
-            // Слушаем сообщения
             const messagesRef = database.ref(`messages/${currentChatId}`);
             messagesRef.off();
             messagesRef.orderByChild('timestamp').on('value', (snap) => {
                 if (snap.exists()) {
-                    renderMessages(snap.val());
+                    renderMessagesWithDates(snap.val());
                 } else {
-                    messagesListEl.innerHTML = '<div style="color: #aaa; text-align: center;">Нет сообщений. Напишите первое!</div>';
+                    messagesListEl.innerHTML = '<div style="color: #aaa; text-align: center; margin-top: 50px;">Нет сообщений. Напишите первое!</div>';
                 }
             });
 
-            // Слушаем "печатает..."
             database.ref(`typing/${currentChatId}/${partnerId}`).off();
             database.ref(`typing/${currentChatId}/${partnerId}`).on('value', (snap) => {
                 if (snap.val() === true) {
@@ -930,7 +944,6 @@
                 }
             });
             
-            // Отмечаем сообщения как прочитанные
             markMessagesAsRead(currentChatId, partnerId);
         };
 
@@ -938,7 +951,6 @@
             return [uid1, uid2].sort().join('_');
         }
 
-        // ================== ОТМЕТКА ПРОЧИТАННЫХ ==================
         async function markMessagesAsRead(chatId, partnerId) {
             if (!currentUser) return;
             const messagesRef = database.ref(`messages/${chatId}`);
@@ -959,35 +971,55 @@
             }
         }
 
-        // ================== ОТОБРАЖЕНИЕ СООБЩЕНИЙ ==================
-        function renderMessages(messagesObj) {
+        // ================== ОТОБРАЖЕНИЕ СООБЩЕНИЙ С ДАТАМИ ==================
+        function renderMessagesWithDates(messagesObj) {
             if (!messagesObj) return;
-            let html = '';
-            const sorted = Object.entries(messagesObj)
-                .sort((a,b) => a[1].timestamp - b[1].timestamp);
             
-            sorted.forEach(([messageId, msg]) => {
+            const messages = Object.entries(messagesObj)
+                .map(([id, msg]) => ({ id, ...msg }))
+                .sort((a, b) => a.timestamp - b.timestamp);
+            
+            let html = '';
+            let currentDate = null;
+            
+            messages.forEach((msg, index) => {
+                const msgDate = new Date(msg.timestamp);
+                const dateKey = `${msgDate.getDate()}_${msgDate.getMonth()}_${msgDate.getFullYear()}`;
+                
+                // Добавляем разделитель даты если день изменился
+                if (dateKey !== currentDate) {
+                    currentDate = dateKey;
+                    const dateText = formatDateForSeparator(msg.timestamp);
+                    html += `<div class="date-separator">
+                                <span class="date-text">${dateText}</span>
+                            </div>`;
+                }
+                
                 const isMy = msg.sender === currentUser.uid;
                 const time = new Date(msg.timestamp).toLocaleTimeString('ru-RU', { 
                     hour: '2-digit', 
                     minute: '2-digit' 
                 });
                 
+                const fullDate = formatFullDate(msg.timestamp);
+                
                 html += `<div class="message-wrapper ${isMy ? 'my-message-wrapper' : ''}" 
-                              data-message-id="${messageId}" 
+                              data-message-id="${msg.id}" 
                               data-sender="${msg.sender}"
-                              oncontextmenu="showMessageMenu('${messageId}', event)"
-                              ontouchstart="touchStart('${messageId}', event)">
+                              oncontextmenu="showMessageMenu('${msg.id}', event)"
+                              ontouchstart="touchStart('${msg.id}', event)"
+                              ontouchend="touchEnd()">
                             <div class="message ${isMy ? 'my-message' : 'other-message'}">
                                 ${msg.text}
-                                <div class="message-time">
+                                <div class="message-time" title="${fullDate}">
                                     ${time}
-                                    ${isMy ? (msg.read ? ' ✓✓' : ' ✓') : ''}
+                                    ${isMy ? (msg.read ? '<span class="read-status">✓✓</span>' : '<span class="read-status">✓</span>') : ''}
                                 </div>
                             </div>
                         </div>`;
             });
-            messagesListEl.innerHTML = html || '<div style="color: #aaa; text-align: center;">Нет сообщений</div>';
+            
+            messagesListEl.innerHTML = html;
             messagesListEl.scrollTop = messagesListEl.scrollHeight;
         }
 
@@ -1003,7 +1035,6 @@
             contextMenuOverlay.classList.remove('hidden');
         };
 
-        // Для мобильных устройств - долгое нажатие
         let touchTimer;
         window.touchStart = function(messageId, event) {
             touchTimer = setTimeout(() => {
@@ -1062,7 +1093,6 @@
                 read: false
             });
 
-            // Обновляем информацию о последнем сообщении в чате
             await database.ref(`chats/${chatId}`).update({
                 participants: {
                     [currentUser.uid]: true,
@@ -1073,8 +1103,6 @@
             });
 
             messageInput.value = '';
-            
-            // Убираем индикатор печати
             database.ref(`typing/${chatId}/${currentUser.uid}`).remove();
         }
 
@@ -1156,7 +1184,6 @@
                 if (e.key === 'Enter') loginUser(loginUsername.value);
             });
 
-            // Контекстное меню
             deleteMessageBtn.addEventListener('click', deleteSelectedMessage);
             cancelContextMenu.addEventListener('click', closeContextMenu);
             contextMenuOverlay.addEventListener('click', closeContextMenu);
@@ -1164,7 +1191,6 @@
             loadAllAccounts();
         };
 
-        // При закрытии страницы
         window.addEventListener('beforeunload', async function() {
             if (currentUser) {
                 await database.ref(`users/${currentUser.uid}`).update({
